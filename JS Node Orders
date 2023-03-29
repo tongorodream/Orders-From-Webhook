@@ -20,14 +20,24 @@ export default defineComponent
           }
         }
       //Размеры
+      var sizeArray = []
+      var iSize
       var sizes = steps.trigger.event.body.payment.products[0].options[0].variant
-      if (steps.trigger.event.body.payment.products.length > 1) 
+      if (sizes == "Универсальный")
         {
-        sizes = steps.trigger.event.body.payment.products[0].options[0].variant
-        for (let i = 1; i < steps.trigger.event.body.payment.products.length ; i++) 
-          {
-          sizes = sizes + "\n" + steps.trigger.event.body.payment.products[i].options[0].variant
-          }
+        sizes = "У"
+        }
+      sizeArray.push(sizes)
+      for (let i = 1; i < steps.trigger.event.body.payment.products.length ; i++) 
+        {
+        iSize = steps.trigger.event.body.payment.products[i].options[0].variant
+        if (iSize == "Универсальный")
+        {
+        iSize = "У"
+        }
+          
+        sizes = sizes + "\n" + iSize
+        sizeArray.push(iSize)
         }
       //Количество
       var quantitys = steps.trigger.event.body.payment.products[0].quantity
@@ -57,7 +67,7 @@ export default defineComponent
       //Способ получения
       var obtainingWay = steps.trigger.event.body.Доставка.split(" ")[0]
       //Время
-      var time = new Date().toLocaleString()
+      var time = new Date().toLocaleString("ru", {year: 'numeric', month: 'numeric', day: 'numeric',hour: 'numeric', minute: 'numeric', second: 'numeric', timezone: 'UTC'})
       //Оплата
       var paiment = "Оплачено"
       //Служба доставки
@@ -75,7 +85,7 @@ export default defineComponent
         arr[i].push(steps.trigger.event.body.payment.products[i].name)
         arr[i].push(steps.trigger.event.body.payment.products[i].name.substring(steps.trigger.event.body.payment.products[i].name.indexOf(' ') + 1))
         arr[i].push(steps.trigger.event.body.payment.products[i].name.split(" ")[0] )
-        arr[i].push(steps.trigger.event.body.payment.products[i].options[0].variant)
+        arr[i].push(sizeArray[i])
         arr[i].push(steps.trigger.event.body.payment.products[i].quantity)
         arr[i].push(steps.trigger.event.body.payment.products[i].amount)
         arr[i].push(obtainingWay)
@@ -105,10 +115,23 @@ export default defineComponent
           {
           articuls = articuls + "\n" + (i+1) + ". " + thingDataArray[i].split(" (")[0]
           }
+        var sizeArray = []
+        var iSize
         sizes = thingDataArray[0].split("Размер: ")[1].split(") -")[0]
+        if (thingDataArray[0].split("Размер: ")[1].split(") -")[0] == "Универсальный")
+            {
+            sizes = "У"
+            }
+        sizeArray.push(sizes)
         for (let i = 1; i < thingDataArray.length ; i++) 
           {
-          sizes = sizes + "\n" + thingDataArray[i].split("Размер: ")[1].split(") -")[0]
+          iSize = thingDataArray[i].split("Размер: ")[1].split(") -")[0]
+          if (iSize == "Универсальный")
+            {
+            iSize = "У"
+            } 
+          sizes = sizes + "\n" + iSize
+          sizeArray.push(iSize)
           }
         quantitys = thingDataArray[0].split(") - ")[1].split("x")[0]
         for (let i = 1; i < thingDataArray.length ; i++) 
@@ -179,7 +202,7 @@ export default defineComponent
         arr[i].push(thingDataArray[i].split(" (")[0])
         arr[i].push((thingDataArray[i].substring(thingDataArray[i].indexOf(' ') + 1)).split(" (")[0])
         arr[i].push(thingDataArray[i].split(" ")[0] )
-        arr[i].push(thingDataArray[i].split("Размер: ")[1].split(") -")[0])
+        arr[i].push(sizeArray[i])
         arr[i].push(thingDataArray[i].split(") - ")[1].split("x")[0])
         arr[i].push(thingDataArray[i].split("x")[1])
         arr[i].push(obtainingWay)
