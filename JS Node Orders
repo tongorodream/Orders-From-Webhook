@@ -39,6 +39,18 @@ export default defineComponent
         sizes = sizes + "\n" + iSize
         sizeArray.push(iSize)
         }
+      //Цвет
+      var colorArray = []
+      var color
+      for (let i = 0; i < steps.trigger.event.body.payment.products.length ; i++)
+        {
+        color = steps.trigger.event.body.payment.products[i].name.split(" ")[0]
+        if (color == "Silver")
+        {
+        color = "Grey"
+        }
+        colorArray.push(color)
+        }
       //Количество
       var quantitys = steps.trigger.event.body.payment.products[0].quantity
       if (steps.trigger.event.body.payment.products.length > 1) 
@@ -82,9 +94,9 @@ export default defineComponent
         {
         arr[i] = []
         arr[i].push(steps.data_stores.$return_value)
-        arr[i].push(steps.trigger.event.body.payment.products[i].name)
+        arr[i].push(steps.trigger.event.body.payment.products[i].name + " " + sizeArray[i])
         arr[i].push(steps.trigger.event.body.payment.products[i].name.substring(steps.trigger.event.body.payment.products[i].name.indexOf(' ') + 1))
-        arr[i].push(steps.trigger.event.body.payment.products[i].name.split(" ")[0] )
+        arr[i].push(colorArray[i])
         arr[i].push(sizeArray[i])
         arr[i].push(steps.trigger.event.body.payment.products[i].quantity)
         arr[i].push(steps.trigger.event.body.payment.products[i].amount)
@@ -138,8 +150,6 @@ export default defineComponent
           {
           quantitys = quantitys + "\n" + thingDataArray[i].split(") - ")[1].split("x")[0]
           }
-        
-  
         }
       //Одна позиция в заказе 
       else
@@ -199,9 +209,9 @@ export default defineComponent
         {
         arr[i] = []
         arr[i].push(steps.data_stores.$return_value)
-        arr[i].push(thingDataArray[i].split(" (")[0])
+        arr[i].push(thingDataArray[i].split(" (")[0] + " " + thingDataArray[i].split(" ")[0])
         arr[i].push((thingDataArray[i].substring(thingDataArray[i].indexOf(' ') + 1)).split(" (")[0])
-        arr[i].push(thingDataArray[i].split(" ")[0] )
+        arr[i].push(thingDataArray[i].split(" ")[0])
         arr[i].push(sizeArray[i])
         arr[i].push(thingDataArray[i].split(") - ")[1].split("x")[0])
         arr[i].push(thingDataArray[i].split("x")[1])
