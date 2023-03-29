@@ -1,0 +1,225 @@
+// To use previous step data, pass the `steps` object to the run() function
+String.prototype.replaceAt = function(index, replacement) {
+    return this.substring(0, index) + replacement + this.substring(index + replacement.length);
+}
+export default defineComponent
+({
+  async run({ steps, $ }) 
+  {
+    //Обработка заказов с тильды
+    if (steps.trigger.event.headers["user-agent"] != "Mozilla/5.0 (compatible; SenlerWebhook/1.0; +https://help.senler.ru/dev/webhook-api)")
+      {
+      //Артикулы 
+      var articuls = steps.trigger.event.body.payment.products[0].name
+      if (steps.trigger.event.body.payment.products.length > 1) 
+        {
+        articuls = "1. " + steps.trigger.event.body.payment.products[0].name
+        for (let i = 1; i < steps.trigger.event.body.payment.products.length ; i++) 
+          {
+          articuls = articuls + "\n" + (i+1) + ". " + steps.trigger.event.body.payment.products[i].name 
+          }
+        }
+      //Размеры
+      var sizes = steps.trigger.event.body.payment.products[0].options[0].variant
+      if (steps.trigger.event.body.payment.products.length > 1) 
+        {
+        sizes = steps.trigger.event.body.payment.products[0].options[0].variant
+        for (let i = 1; i < steps.trigger.event.body.payment.products.length ; i++) 
+          {
+          sizes = sizes + "\n" + steps.trigger.event.body.payment.products[i].options[0].variant
+          }
+        }
+      //Количество
+      var quantitys = steps.trigger.event.body.payment.products[0].quantity
+      if (steps.trigger.event.body.payment.products.length > 1) 
+        {
+        quantitys = steps.trigger.event.body.payment.products[0].quantity
+        for (let i = 1; i < steps.trigger.event.body.payment.products.length ; i++) 
+          {
+          quantitys = quantitys + "\n" + steps.trigger.event.body.payment.products[i].quantity
+          }
+        }
+      //Цена продукта
+      var price = steps.trigger.event.body.payment.subtotal
+      //Стоимость с платой за отправку
+      var coast = steps.trigger.event.body.payment.amount
+      //ФИО
+      var fio = steps.trigger.event.body.Name
+      var email = steps.trigger.event.body.Email
+      //Телефон
+      var phone = " " + steps.trigger.event.body.Phone
+      //Город
+      var city = steps.trigger.event.body.Ваш_город_
+      //Адрес
+      var addres = steps.trigger.event.body.Ваш_полный_адрес
+      //Индекс
+      var index = steps.trigger.event.body.Индекс
+      //Способ получения
+      var obtainingWay = steps.trigger.event.body.Доставка.split(" ")[0]
+      //Время
+      var time = new Date().toLocaleString()
+      //Оплата
+      var paiment = "Оплачено"
+      //Служба доставки
+      if (obtainingWay == "Доставка")
+        {
+        var deliveryService = steps.trigger.event.body.Доставка.split(" ")[1]
+        }
+      else deliveryService = " "
+      //Построчные заказы 
+      var arr = []
+      for (let i = 0; i < steps.trigger.event.body.payment.products.length; i++)
+        {
+        arr[i] = []
+        arr[i].push(steps.data_stores.$return_value)
+        arr[i].push(steps.trigger.event.body.payment.products[i].name)
+        arr[i].push(steps.trigger.event.body.payment.products[i].name.substring(steps.trigger.event.body.payment.products[i].name.indexOf(' ') + 1))
+        arr[i].push(steps.trigger.event.body.payment.products[i].name.split(" ")[0] )
+        arr[i].push(steps.trigger.event.body.payment.products[i].options[0].variant)
+        arr[i].push(steps.trigger.event.body.payment.products[i].quantity)
+        arr[i].push(steps.trigger.event.body.payment.products[i].amount)
+        arr[i].push(obtainingWay)
+        arr[i].push(deliveryService)
+        arr[i].push(paiment)
+        arr[i].push("В Обработке")
+        arr[i].push(time)
+        arr[i].push(" ")
+        arr[i].push(fio)
+        arr[i].push(phone)
+        arr[i].push(city)
+        arr[i].push(addres)
+        arr[i].push(index)
+        arr[i].push(price)
+        arr[i].push(coast)
+        }
+      }
+    //Обработка заказов с сенлера  
+    else 
+      {
+      var thingDataArray = steps.trigger.event.body.product.articul.split("; ")
+      //Несколько позиций в заказе  
+      if (thingDataArray.length > 1)
+        { 
+        articuls = "1. " + thingDataArray[0].split(" (")[0]
+        for (let i = 1; i < thingDataArray.length ; i++) 
+          {
+          articuls = articuls + "\n" + (i+1) + ". " + thingDataArray[i].split(" (")[0]
+          }
+        sizes = thingDataArray[0].split("Размер: ")[1].split(") -")[0]
+        for (let i = 1; i < thingDataArray.length ; i++) 
+          {
+          sizes = sizes + "\n" + thingDataArray[i].split("Размер: ")[1].split(") -")[0]
+          }
+        quantitys = thingDataArray[0].split(") - ")[1].split("x")[0]
+        for (let i = 1; i < thingDataArray.length ; i++) 
+          {
+          quantitys = quantitys + "\n" + thingDataArray[i].split(") - ")[1].split("x")[0]
+          }
+        
+  
+        }
+      //Одна позиция в заказе 
+      else
+        {
+        var quantitys = thingDataArray[0].split(") - ")[1].split("x")[0]
+        var sizes = thingDataArray[0].split("Размер: ")[1].split(") -")[0]
+        var articuls = thingDataArray[0].split(" (")[0]            
+        }
+      //Цена продукта
+      var price = steps.trigger.event.body.product.non_delivery_price
+      //Стоимость с платой за отправку
+      var coast = steps.trigger.event.body.product.full_price
+      //ФИО
+      var fio = steps.trigger.event.body.client.client_info.split(";")[0]
+      var email = steps.trigger.event.body.client.page
+      //Телефон
+      var phone = " +7 (" + steps.trigger.event.body.client.client_info.split(";")[1].slice(2,5) + ") " + steps.trigger.event.body.client.client_info.split(";")[1].slice(5,8) + "-" + steps.trigger.event.body.client.client_info.split(";")[1].slice(8,12)
+      //Город
+      var city = steps.trigger.event.body.client.client_info.split(";")[2]
+      if (typeof city !== 'undefined') 
+        {
+        var city = steps.trigger.event.body.client.client_info.split(";")[2]
+        }
+      else city = " "  
+      //Адрес
+      var addres = steps.trigger.event.body.client.client_info.split(";")[3]
+        if (typeof addres !== 'undefined') 
+        {
+        var addres = steps.trigger.event.body.client.client_info.split(";")[3]
+        }
+      else addres = " "    
+      //Индекс
+      var index = steps.trigger.event.body.client.client_info.split(";")[4]
+      if (typeof index !== 'undefined') 
+        {
+        var index = steps.trigger.event.body.client.client_info.split(";")[4]
+        }
+      else index = " "  
+      //Время
+      var time = steps.trigger.event.body.time
+      //Оплата
+      var paiment = "Оплачено"
+      //Способ получения
+      var obtainingWay = steps.trigger.event.body.obtaining
+      //Служба доставки
+      if (obtainingWay == "Доставка")
+        {
+        var deliveryService = steps.trigger.event.body.delivery.split(" ")[1]
+        }
+      else
+        {
+        var deliveryService = " "
+        }
+      //Построчные заказы
+      var arr = []
+      for (let i = 0; i < thingDataArray.length; i++)
+        {
+        arr[i] = []
+        arr[i].push(steps.data_stores.$return_value)
+        arr[i].push(thingDataArray[i].split(" (")[0])
+        arr[i].push((thingDataArray[i].substring(thingDataArray[i].indexOf(' ') + 1)).split(" (")[0])
+        arr[i].push(thingDataArray[i].split(" ")[0] )
+        arr[i].push(thingDataArray[i].split("Размер: ")[1].split(") -")[0])
+        arr[i].push(thingDataArray[i].split(") - ")[1].split("x")[0])
+        arr[i].push(thingDataArray[i].split("x")[1])
+        arr[i].push(obtainingWay)
+        arr[i].push(deliveryService)
+        arr[i].push(paiment)
+        arr[i].push("В Обработке")
+        arr[i].push(time)
+        arr[i].push(" ")
+        arr[i].push(fio)
+        arr[i].push(phone)
+        arr[i].push(city)
+        arr[i].push(addres)
+        arr[i].push(index)
+        arr[i].push(price)
+        arr[i].push(coast)
+        }
+
+      }
+    
+    let param = {
+      arr : arr,
+      articuls : articuls,
+      sizes : sizes,
+      quantitys : quantitys,
+      price : price,
+      coast : coast,
+      fio : fio,
+      email : email,
+      phone : phone,
+      city : city,
+      addres : addres,
+      index : index,
+      obtainingWay :  obtainingWay,
+      deliveryService : deliveryService,
+      time : time,
+      paiment : paiment,
+      }
+
+    return param
+  
+  }
+  ,
+})
